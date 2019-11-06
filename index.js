@@ -18,7 +18,9 @@ var data = {
   count: {
     successes: 0,
     failures: 0
-  }
+  },
+
+  errors: 0
 };
 
 function getCurrentLevel(nextXP) { return Math.round(3/20 * Math.sqrt(nextXP)); }
@@ -26,8 +28,8 @@ function getCurrentLevel(nextXP) { return Math.round(3/20 * Math.sqrt(nextXP)); 
 function restrictDP(n, dp) { var p = Math.pow(10, dp); return Math.floor(n * p) / p; }
 
 
-function ttg() { try { client.channels.get(channelID).send("t!tg train"); } catch(err) {} }
-client.on("ready", () => { try { console.log("Connected. Let the training commence!"); ttg(); setInterval(ttg, delay * 1000); } catch(err) {} });
+function ttg() { try { client.channels.get(channelID).send("t!tg train"); } catch(err) { data.errors++; } }
+client.on("ready", () => { try { console.log("Connected. Let the training commence!"); ttg(); setInterval(ttg, delay * 1000); } catch(err) { data.errors++; } });
 
 client.on("message", message => {
   try {
@@ -94,12 +96,12 @@ client.on("message", message => {
               console.log("LVL: " + data.currentLevel + " (approx " + leveluptext + " until next level)");
               console.log("EXP: " + data.currentXP + "/" + data.nextXP + " (" + xp_p_min + " per min)"); //, " + dXPdt + " rn)");
             }
-            console.log("AVGs: xp=" + averageFiltered + " s=" + data.count.successes + "/" + tCount + "=" + sRatio);
+            console.log("AVGs: xp=" + averageFiltered + " s=" + data.count.successes + "/" + tCount + "=" + sRatio + " e=" + data.errors);
           }
         }
       }
     }
-  } catch(err) {}
+  } catch(err) { data.errors++; }
 });
 
-client.login(config.token);
+client.login(config.token).catch(() => { console.error("Fatal Error: Unable to connect to discord.\nCheck your internet connection and the\naccess token in 'config.json' is correct."); });
