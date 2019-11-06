@@ -4,7 +4,7 @@ const config = require("./config.json");
 const channelID = "641478310781517834", tatsumakiID = "172002275412279296";
 const delay = 12.5;
 
-const datalogging = true;
+const datalogging = true;   // requires the user to have a custom discord pfp
 var data = {
   initialXP: 0,
 
@@ -39,8 +39,7 @@ client.on("message", message => {
         var e = message.embeds[0];
         if (e) {
           var a = e.author;
-          if (!a.iconURL) return;
-          if (/avatars\/(\d+)\//.exec(a.iconURL)[1] == client.user.id) {
+          if ((/avatars\/(\d+)\//.exec(a.iconURL) || [])[1] == client.user.id) {
             message.acknowledge();
             if (a.name == "Success!") {
               data.count.successes++;
