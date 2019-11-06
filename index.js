@@ -4,6 +4,7 @@ const config = require("./config.json");
 const channelID = "641478310781517834", tatsumakiID = "172002275412279296";
 const delay = 12.5;
 
+const datalogging = true;
 var data = {
   initialXP: 0,
 
@@ -63,40 +64,42 @@ client.on("message", message => {
 
 
             // data logging
-            console.clear();
+            if (datalogging) {
+              console.clear();
 
-            var tCount = data.count.successes + data.count.failures;
-            var averageRaw = (data.currentXP - data.initialXP) / (tCount - 1);
-            var averageFiltered = (data.currentXP - data.initialXP) / (data.count.successes - 1);
+              var tCount = data.count.successes + data.count.failures;
+              var averageRaw = (data.currentXP - data.initialXP) / (tCount - 1);
+              var averageFiltered = (data.currentXP - data.initialXP) / (data.count.successes - 1);
 
-            if (data.count.successes > 1) {
-              var leveluptext = Math.floor((data.nextXP - data.currentXP) / averageRaw * delay);
-              var LUh = Math.floor(leveluptext / 3600);
-              var LUm = Math.floor((leveluptext - (LUh * 3600)) / 60);
-              var LUs = leveluptext - (LUh * 3600) - (LUm * 60);
-              leveluptext = "";
-              if (LUh) {
-                leveluptext += LUh.toString().padStart(2, "0") + ":";
+              if (data.count.successes > 1) {
+                var leveluptext = Math.floor((data.nextXP - data.currentXP) / averageRaw * delay);
+                var LUh = Math.floor(leveluptext / 3600);
+                var LUm = Math.floor((leveluptext - (LUh * 3600)) / 60);
+                var LUs = leveluptext - (LUh * 3600) - (LUm * 60);
+                leveluptext = "";
+                if (LUh) {
+                  leveluptext += LUh.toString().padStart(2, "0") + ":";
+                }
+                leveluptext += LUm.toString().padStart(2, "0") + ":";
+                leveluptext += LUs.toString().padStart(2, "0");
               }
-              leveluptext += LUm.toString().padStart(2, "0") + ":";
-              leveluptext += LUs.toString().padStart(2, "0");
+
+              var xp_p_min = 60 / delay * averageRaw;
+
+              // restrict dp for displaying
+              averageRaw = restrictDP(averageRaw, 2);
+              averageFiltered = restrictDP(averageFiltered, 2);
+              xp_p_min = restrictDP(xp_p_min, 2);
+              var dXPdt = restrictDP(data.dXPdt, 2);
+              var sRatio = restrictDP(data.count.successes / tCount, 2);
+
+              console.log("Tatsugotchi Training Bot - Stats");
+              if (data.count.successes >= 2) {
+                console.log("LVL: " + data.currentLevel + " (approx " + leveluptext + " until next level)");
+                console.log("EXP: " + data.currentXP + "/" + data.nextXP + " (" + xp_p_min + " per min)"); //, " + dXPdt + " rn)");
+              }
+              console.log("AVGs: xp=" + averageFiltered + " s=" + data.count.successes + "/" + tCount + "=" + sRatio + " e=" + data.errors);
             }
-
-            var xp_p_min = 60 / delay * averageRaw;
-
-            // restrict dp for displaying
-            averageRaw = restrictDP(averageRaw, 2);
-            averageFiltered = restrictDP(averageFiltered, 2);
-            xp_p_min = restrictDP(xp_p_min, 2);
-            var dXPdt = restrictDP(data.dXPdt, 2);
-            var sRatio = restrictDP(data.count.successes / tCount, 2);
-
-            console.log("Tatsugotchi Training Bot - Stats");
-            if (data.count.successes >= 2) {
-              console.log("LVL: " + data.currentLevel + " (approx " + leveluptext + " until next level)");
-              console.log("EXP: " + data.currentXP + "/" + data.nextXP + " (" + xp_p_min + " per min)"); //, " + dXPdt + " rn)");
-            }
-            console.log("AVGs: xp=" + averageFiltered + " s=" + data.count.successes + "/" + tCount + "=" + sRatio + " e=" + data.errors);
           }
         }
       }
