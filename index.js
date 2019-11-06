@@ -77,8 +77,8 @@ client.on("message", message => {
               leveluptext = "";
               if (LUh) {
                 leveluptext += LUh.toString().padStart(2, "0") + ":";
-                leveluptext += LUm.toString().padStart(2, "0") + ":";
-              } else if (LUm) leveluptext += LUm.toString().padStart(2, "0") + ":";
+              }
+              leveluptext += LUm.toString().padStart(2, "0") + ":";
               leveluptext += LUs.toString().padStart(2, "0");
             }
 
