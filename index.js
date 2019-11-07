@@ -1,8 +1,41 @@
 const Discord = require("discord.js"), client = new Discord.Client();
-const config = require("./config.json");
+const fs = require("fs");
 
-const channelID = "641478310781517834", tatsumakiID = "172002275412279296";
-const delay = 12.5;
+function handle(err) { if (err.code != "MODULE_NOT_FOUND") throw err; }
+
+var clientToken;
+try { clientToken = require("./token.json").token; } catch(err) {
+  handle(err);
+
+  fs.writeFileSync("./token.json", null, "utf8");
+  fs.writeFileSync("./token.json", JSON.stringify({ "token": "INSERT_YOUR_DISCORD_ACCOUNT_TOKEN_HERE" }), "utf8");
+  console.error("FATAL ERROR: Unable to find token file.\nOne has been generated in the working\ndirectory.");
+  process.exit(1);
+}
+
+if (!clientToken) {
+  console.error("FATAL ERROR: Unable to get client token.\nCheck that the token file is valid.");
+  process.exit(1);
+}
+
+var config;
+try { config = require("./config.json"); } catch(err) {
+  handle(err);
+
+  fs.writeFileSync("./config.json", null, "utf8");
+  fs.writeFileSync("./config.json", JSON.stringify({ "channelID": "000000000000000000" }), "utf8");
+  console.error("FATAL ERROR: Unable to find config file.\nOne has been generated in the working\ndirectory.");
+  process.exit(1);
+}
+
+if ((typeof config.channelID != "string") || parseInt(config.channelID) <= 0) {
+  console.error("FATAL ERROR: Invalid config file.\nCheck that the channelID is correct.");
+  process.exit(1);
+}
+
+
+const channelID = config.channelID, tatsumakiID = config.tatsumakiID || "172002275412279296";
+const delay = parseFloat(config.delay) || 12.5;
 
 const datalogging = true;   // requires the user to have a custom discord pfp
 var data = {
@@ -106,4 +139,4 @@ client.on("message", message => {
   } catch(err) { data.errors++; }
 });
 
-client.login(config.token).catch(() => { console.error("Fatal Error: Unable to connect to discord.\nCheck your internet connection and the\naccess token in 'config.json' is correct."); });
+client.login(clientToken).catch(() => { console.error("FATAL ERROR: Unable to connect to discord.\nCheck your internet connection and the\naccess token in 'config.json' is correct."); });
