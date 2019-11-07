@@ -54,7 +54,10 @@ var data = {
     failures: 0
   },
 
-  errors: 0
+  errors: 0,
+
+  misses: 0,
+  missTime: 0,
 };
 
 function getCurrentLevel(nextXP) { return Math.round(3/20 * Math.sqrt(nextXP)); }
@@ -130,7 +133,15 @@ client.on("message", message => {
                 console.log("LVL: " + data.currentLevel + " (approx " + leveluptext + " until next level)");
                 console.log("EXP: " + data.currentXP + "/" + data.nextXP + " (" + xp_p_min + " per min)"); //, " + dXPdt + " rn)");
               }
-              console.log("AVGs: xp=" + averageFiltered + " s=" + data.count.successes + "/" + tCount + "=" + sRatio + " e=" + data.errors);
+              console.log("AVGs: xp=" + averageFiltered + " s=" + data.count.successes + "/" + tCount + "=" + sRatio + " e=" + data.errors + " m=" + data.misses);
+            }
+          }
+        } else {
+          var r = /\*\*(.+)\*\*, \*\*please wait (\d{1,2}) seconds before attempting to train your/.exec(message.content);
+          if (r) {
+            if (r[1] == client.user.username) {
+              data.misses++;
+              data.missTime += parseInt(r[2]);
             }
           }
         }
