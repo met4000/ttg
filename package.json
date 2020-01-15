@@ -9,6 +9,7 @@
   "author": "met4000",
   "license": "MIT",
   "dependencies": {
+    "discord-rich-presence": "0.0.8",
     "discord.js": "^11.5.1"
   }
 }

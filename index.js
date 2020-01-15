@@ -1,12 +1,15 @@
 const Discord = require("discord.js"), client = new Discord.Client();
 const fs = require("fs");
 
+const DiscordRPClientInit = require("discord-rich-presence");
+var DiscordRPClient;
+
 function handle(err) { if (err.code != "MODULE_NOT_FOUND") throw err; }
 
 var clientToken;
 try { clientToken = require("./token.json").token; } catch(err) {
   handle(err);
-
+  
   fs.writeFileSync("./token.json", null, "utf8");
   fs.writeFileSync("./token.json", JSON.stringify({ "token": "INSERT_YOUR_DISCORD_ACCOUNT_TOKEN_HERE" }), "utf8");
   console.error("FATAL ERROR: Unable to find token file.\nOne has been generated in the working\ndirectory.");
@@ -21,7 +24,7 @@ if (!clientToken) {
 var config;
 try { config = require("./config.json"); } catch(err) {
   handle(err);
-
+  
   fs.writeFileSync("./config.json", null, "utf8");
   fs.writeFileSync("./config.json", JSON.stringify({ "channelID": "000000000000000000" }), "utf8");
   console.error("FATAL ERROR: Unable to find config file.\nOne has been generated in the working\ndirectory.");
@@ -66,7 +69,26 @@ function restrictDP(n, dp) { var p = Math.pow(10, dp); return Math.floor(n * p) 
 
 
 function ttg() { try { client.channels.get(channelID).send("t!tg train"); } catch(err) { data.errors++; } }
-client.on("ready", () => { try { console.log("Connected. Let the training commence!"); ttg(); setInterval(ttg, delay * 1000); } catch(err) { data.errors++; } });
+client.on("ready", () => {
+  // try {
+    console.log("Connected. Let the training commence!");
+
+    DiscordRPClient = DiscordRPClientInit(client.id);
+
+    DiscordRPClient.updatePresence({
+      state: 'slithering',
+      details: '🐍',
+      startTimestamp: Date.now(),
+      endTimestamp: Date.now() + 1337,
+      // largeImageKey: 'snek_large',
+      // smallImageKey: 'snek_small',
+      instance: true,
+    });
+
+    setInterval(ttg, delay * 1000);
+    ttg();
+  // } catch(err) { data.errors++; }
+});
 
 client.on("message", message => {
   try {
